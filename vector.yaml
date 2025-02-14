@@ -1,0 +1,42 @@
+sources:
+  ws:
+    type: http_server
+    address: 0.0.0.0:80
+    encoding: json
+    headers:
+      - User-Agent
+    host_key: hostname
+    method: POST   # Accept only POST requests
+    path: /
+    path_key: path
+    response_code: 200
+    response_body: "Data received and processed!"
+    strict_path: true
+
+transforms:
+  remap:
+    inputs:
+      - "ws"
+    type: remap
+    source: |
+      del(.user_info)  # Example: Remove unwanted field
+      .timestamp = now()  # Add timestamp
+      .processed = true   # Add a new field indicating data was processed
+
+sinks:
+  elasticsearch_sink:
+    inputs:
+      - "remap"
+    type: "elasticsearch"
+    endpoints:
+      - "http://localhost:9200"
+    bulk:
+      index: "vector-logs"
+    mode: bulk
+    batch:
+      max_bytes: 10485760  # 10MB
+      max_events: 1000
+    auth:
+      strategy: "basic"
+      user: "elastic"
+      password: "Elk@2024"
