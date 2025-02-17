@@ -1,19 +1,24 @@
 version: '3'
 services:
   elasticsearch:
-    image: elasticsearch:8.17.2
+    image: elasticsearch:7.8.1
     ports:
       - 9200:9200
     environment:
       discovery.type: 'single-node'
       xpack.security.enabled: 'true'
-      ELASTIC_PASSWORD: 'Elk@2024'
+      ELASTIC_PASSWORD: 'Elk@2025'
       ES_JAVA_OPTS: '-Xmx2g -Xms2g'
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+    # volumes:
+    #   - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -u elastic:Elk@2025 http://elasticsearch:9200/_cluster/health | grep -q '\"status\":\"green\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kibana:
-    image: kibana:8.17.2
+    image: kibana:7.8.1
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
@@ -25,8 +30,12 @@ services:
       dockerfile: Dockerfile 
     volumes:
       - ./vector.yaml:/etc/vector/vector.yaml  
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     ports:
-      - 80:8888
+      - 8888:80
 
-volumes:
-  elasticsearch-data:
+
+# volumes:
+#   elasticsearch-data:
