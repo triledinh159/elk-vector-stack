@@ -29,7 +29,7 @@ sinks:
       - "remap"
     type: "elasticsearch"
     endpoints:
-      - "http://localhost:9200"
+      - "http://elasticsearch:9200"
     bulk:
       index: "vector-logs"
     mode: bulk
@@ -39,4 +39,4 @@ sinks:
     auth:
       strategy: "basic"
       user: "elastic"
-      password: "Elk@2024"
+      password: "Elk@2025"
